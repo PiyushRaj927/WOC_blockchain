@@ -1,6 +1,5 @@
 from operator import attrgetter
-from pickle import NONE
-from re import S
+
 import time
 import json
 import hashlib
@@ -30,15 +29,9 @@ class Transaction:
                                 "receiver":self.receiver,
                                 "amount":self.amount,
                                 "timestamp":self.timestamp}
-        
-        
-       
+    
         self.JSON = json.dumps(temp)
 
-
-
-    
-    
     def __repr__(self):
         return self.JSON
    
@@ -87,7 +80,7 @@ class Blockchain:
     def last_block(self):
         return self.chain[-1]
     
-    difficulty = 4
+    difficulty = 2
     def proof_of_work(self, block):
             
             computed_hash = block.block_hash()
@@ -161,5 +154,5 @@ blockchain = Blockchain()
 
 blockchain.add_new_transaction(Transaction("A","B",100))
 blockchain.mine()
-blockchain.add_new_transaction(Transaction("B","A",200))
+blockchain.add_new_transaction(Transaction("A","B",200))
 blockchain.mine()
