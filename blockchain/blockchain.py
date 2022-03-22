@@ -1,7 +1,8 @@
 from operator import attrgetter
 import accounts
 import time
-import json
+import json 
+import base58
 import hashlib
 class Transactions:
     def __init__(self,transaction):
@@ -17,21 +18,34 @@ class Transactions:
         return balance
     def __repr__(self):
         return json.dumps(self.chain)
+    def Json(self):
+        chain = []
+        for i in self.chain:
+            chain.append(i.tx)
+        return chain 
+
             
      
 class Transaction:
-    def __init__(self,sender=None,receiver=None,amount=None):
+    def __init__(self,sender,receiver,amount,sig):
         self.sender = sender
         self.receiver = receiver
         self.amount = amount
         self.timestamp = time.time() 
-        temp = {"sender":self.sender,
+        self.sig = sig
+        
+        self.tx = {"tx":{"sender":self.sender,
                                 "receiver":self.receiver,
-                                "amount":self.amount,
-                                "timestamp":self.timestamp}
+                                "amount":self.amount},
+                                "timestamp":self.timestamp,
+                                "sig":base58.b58encode(self.sig).decode()}
     
-        self.JSON = json.dumps(temp)
-
+        self.JSON = json.dumps(self.tx)
+        print(self.tx["tx"])
+    """  def verify_transaction(self):
+        addr = bytes.fromhex(self.sender)
+        #get the public key from the database
+        ecdsa.VerifyingKey.from_pem(base58.b58decode(self.PublicKey)).verify(base58.b58decode(sig),message)"""
     def __repr__(self):
         return self.JSON
    
@@ -48,7 +62,7 @@ class Block:
 
     def block_string(self):
         temp = {'index':self.index,
-                'transactions':repr(self.transactions.chain),
+                'transactions':self.transactions.Json(),
                 'timestamp':self.timestamp,
                 'previous_hash': self.previous_hash,
                 'nonce':self.nonce}
@@ -74,7 +88,7 @@ class Blockchain:
     def len(self):
         return len(self.chain)
     def create_genesis_block(self):
-        genesis_block = Block(0, Transactions([Transaction("ROOT","A",1000)]), time.time(), "{0:#0{1}x}".format(0,32))
+        genesis_block = Block(0, Transactions([Transaction("ROOT","A",1000,b'0')]), time.time(), "{0:#0{1}x}".format(0,32))
         genesis_block.hash = genesis_block.block_hash()
         self.chain.append(genesis_block)
     def last_block(self):
@@ -149,9 +163,3 @@ class Blockchain:
         return balance
             
             
-blockchain = Blockchain()
-
-blockchain.add_new_transaction(Transaction("A","B",100))
-blockchain.mine()
-blockchain.add_new_transaction(Transaction("A","B",200))
-blockchain.mine()
