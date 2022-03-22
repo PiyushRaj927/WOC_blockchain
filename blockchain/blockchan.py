@@ -1,5 +1,5 @@
 from operator import attrgetter
-
+import accounts
 import time
 import json
 import hashlib
@@ -114,7 +114,6 @@ class Blockchain:
             for i in self.unconfirmed_transactions:
                if not self.validate_transactions(i):
                    self.unconfirmed_transactions.remove(i)   
-            print(self.unconfirmed_transactions)
             if not self.unconfirmed_transactions:
                 return False
      

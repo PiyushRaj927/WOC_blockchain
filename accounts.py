@@ -4,21 +4,27 @@ import base58
 class account:
     def __init__(self):
         self.sk = ecdsa.SigningKey.generate(curve=ecdsa.NIST521p)
-        self.PrivateKey =  base58.b58encode(self.sk.to_string())
-        self.PublicKey = base58.b58encode(self.sk.verifying_key.to_string("uncompressed"))
+        self.PrivateKey =  base58.b58encode(self.sk.to_pem())
+        
+        self.PublicKey = base58.b58encode(self.sk.verifying_key.to_pem())
+        print("\nPrivateKey","\n",self.PrivateKey,"\n")
+        self.vk = ecdsa.VerifyingKey.from_pem(base58.b58decode(self.PublicKey))
+        del self.PrivateKey
+        del self.sk
     def signTransaction(self,message):
-        sig = self.sk.sign(message)
-        if self.sk.verifying_key.verify(sig,message):
+        Privatekey = ecdsa.SigningKey.from_pem(base58.b58decode(input("Enter your Privatekey:\n")))
+        sig = Privatekey.sign(message)
+        if self.vk.verify(sig,message):
             return base58.b58encode(sig)
         else:
-            return False
+            print("[*] error signed transaction can't be verified ")
+            return 
     def verfyTransaction(self,sig,message):
-        return self.sk.verifying_key.verify(base58.b58decode(sig),message)
+        return self.vk.verify(base58.b58decode(sig),message)
 
 transac = {"sender": "A", "receiver": "B", "amount": 100, "timestamp": 1647690547.3355699}
 
 a = account()
-print(a.PrivateKey)
 print("-"*10)
 print(a.PublicKey)
 message = bytes(json.dumps(transac),'utf-8')
