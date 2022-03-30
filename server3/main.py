@@ -15,7 +15,7 @@ blockchain = importlib.util.module_from_spec(blockchain_spec)
 blockchain_spec.loader.exec_module(blockchain)
 
 ledger = blockchain.Blockchain()
-a = accounts.account()
+"""a = accounts.account()
 b = accounts.account()
 #c = accounts.account()
 
@@ -24,7 +24,7 @@ ledger.add_new_transaction(blockchain.Transaction("A","B",100,a.signTransaction(
 ledger.mine()
 #ledger.mine()
 
-print(ledger)
+print(ledger)"""
 """
 ledger.add_new_transaction(blockchain.Transaction("A","B",200,a.signTransaction(bytes("{'sender': 'A', 'receiver': 'B', 'amount': 200}","utf-8"))))
 ledger.mine()"""

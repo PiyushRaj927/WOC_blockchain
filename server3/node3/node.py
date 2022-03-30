@@ -8,10 +8,9 @@ Gossip_spec = importlib.util.spec_from_loader( 'Gossip',Gossip_loader )
 Gossip = importlib.util.module_from_spec(Gossip_spec)
 Gossip_spec.loader.exec_module(Gossip)
 
-
 # port for this node
-port = 5000
+port = 5010
 # ports for the nodes connected to this node
-connected_nodes = [5010, 5020]
+connected_nodes = [5000, 5020]
 
 node = Gossip.GossipNode(port, connected_nodes)

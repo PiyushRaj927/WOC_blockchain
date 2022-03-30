@@ -185,19 +185,21 @@ class Blockchain:
     def get_vote(self,unconf_block):
         
         vote = self.send_block(unconf_block)
-        print("final vote: ",vote)
-        if vote!=0:
+        if vote>=2:
             return True
     def block_verification_network(self,message):
         block = message['data']
         new_block = Block(block['index'],Transactions([Transaction(i["tx"]["sender"],i["tx"]["receiver"],i["tx"]["amount"],i["sig"]) for i in block['transactions']]),block['timestamp'],block['previous_hash'],block['nonce'])
-        if True or (new_block.block_hash().startswith('0' * Blockchain.difficulty) and new_block.previous_hash==self.last_block.block_hash()):
+        #if  (new_block.block_hash().startswith('0' * Blockchain.difficulty) and new_block.previous_hash==self.last_block.block_hash()):
+        if True:
+            print("checking transactions")
             for i in new_block.transactions.chain:
-                if not self.validate_transactions(i):
+                print(i)
+                if  self.validate_transactions(i):
                     self.add_block(new_block)
+                    print("block verification done")
                     return True
-            else:
-                return False
+
     def send_block(self,block):
         data = block.block_string()
         message = json.dumps({ 'timestamp': time.time(),
@@ -208,16 +210,13 @@ class Blockchain:
                         })
         node.server.transmit_message(message.encode('ascii'))      
         while True:
-            if len(self.votes)==1:
-                print("length is correct for votes")
+            if len(self.votes)>=2:
                 nf_votes =0
                 for i in self.votes:
                     if i ==1:
-                        print("one is correct")
-                        nf_votes+=1
-                print(nf_votes)
+                        nf_votes+=nf_votes
                 self.votes = []
-                return nf_votes  
+                return nf_votes
     def temp(self):
         while True:
             for k in node.Gossip.cmd:
@@ -230,18 +229,13 @@ class Blockchain:
                                                 'type':'block_vote'
                     #'sig':
                         })
+                    print("sending vote: ",vote_data)
                     node.server.transmit_message(vote_data.encode('ascii'))
-                    node.Gossip.cmd.remove(k)
+                    del k
 
-                elif k['type']=='block_vote':
+                """elif k['type']=='block_vote':
                     if k['data'] == 'True':
-                        print("vote added")
-                        self.votes.append(1)
-                        print(self.votes)
-                        #print("vote added to votes")  
-                        node.Gossip.cmd.remove(k)
-
-                        
+                        self.votes.append(1)"""   
                     
             
 
