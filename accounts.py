@@ -25,8 +25,3 @@ class account:
             return False
     def verfyTransaction(self,sig,message):
         return self.vk.verify(base58.b58decode(sig),message)
-
-transac = {"sender": "A", "receiver": "B", "amount": 100, "timestamp": 1647690547.3355699}
-
-
-

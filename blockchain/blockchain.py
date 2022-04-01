@@ -200,13 +200,13 @@ class Blockchain:
                 return False
     def send_block(self,block):
         data = block.block_string()
-        message = json.dumps({ 'timestamp': time.time(),
-                    'id':node.name,
+        message = { 'timestamp': time.time(),
+                    
                     'data':json.loads(data),
                     'type':'block_verification'
-                    #'sig':
-                        })
-        node.server.transmit_message(message.encode('ascii'))      
+                    
+                        }
+        node.server.transmit_message(message)      
         while True:
             if len(self.votes)==1:
                 print("length is correct for votes")
@@ -224,13 +224,15 @@ class Blockchain:
                 if k['type']=='block_verification':
                         
                     vote = self.block_verification_network(k)
+                    print("block verification done ",vote)
                     vote_data = json.dumps({ 'timestamp': time.time(),
                                                 'data':str(vote),
-                                                'id':node.name,
+                                                
                                                 'type':'block_vote'
                     #'sig':
                         })
-                    node.server.transmit_message(vote_data.encode('ascii'))
+                    node.server.transmit_message(vote_data.encode('utf-8'))
+                    print("vote send")
                     node.Gossip.cmd.remove(k)
 
                 elif k['type']=='block_vote':

@@ -9,11 +9,14 @@ Gossip = importlib.util.module_from_spec(Gossip_spec)
 Gossip_spec.loader.exec_module(Gossip)
 
 
+
+
+
 # port for this node
 port = 5000
 # ports for the nodes connected to this node
 connected_nodes = [5020]
 name = 'server1'
-server = Gossip.GossipNode(port, connected_nodes,name)
+server = Gossip.GossipNode(port, connected_nodes,name,)
 
 
