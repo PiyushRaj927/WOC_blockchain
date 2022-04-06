@@ -3,13 +3,15 @@ from pickle import FALSE
 import accounts
 import time
 import json 
+import os
 import importlib.machinery
 import importlib.util
 import base58
 import hashlib
 from threading import Thread
 # Import node
-node_loader = importlib.machinery.SourceFileLoader( 'node', './node1/server1.py' )
+ 
+node_loader = importlib.machinery.SourceFileLoader( 'node', './server/server1.py' )
 node_spec = importlib.util.spec_from_loader( 'node', node_loader )
 node = importlib.util.module_from_spec(node_spec)
 node_spec.loader.exec_module(node)
@@ -193,7 +195,8 @@ class Blockchain:
         new_block = Block(block['index'],Transactions([Transaction(i["tx"]["sender"],i["tx"]["receiver"],i["tx"]["amount"],i["sig"]) for i in block['transactions']]),block['timestamp'],block['previous_hash'],block['nonce'])
         if True or (new_block.block_hash().startswith('0' * Blockchain.difficulty) and new_block.previous_hash==self.last_block.block_hash()):
             for i in new_block.transactions.chain:
-                if not self.validate_transactions(i):
+                print(self.validate_transactions(i),"-"*7, i)
+                if  self.validate_transactions(i):
                     self.add_block(new_block)
                     return True
             else:
@@ -225,13 +228,13 @@ class Blockchain:
                         
                     vote = self.block_verification_network(k)
                     print("block verification done ",vote)
-                    vote_data = json.dumps({ 'timestamp': time.time(),
+                    vote_data = { 'timestamp': time.time(),
                                                 'data':str(vote),
                                                 
                                                 'type':'block_vote'
                     #'sig':
-                        })
-                    node.server.transmit_message(vote_data.encode('utf-8'))
+                        }
+                    node.server.transmit_message(vote_data)
                     print("vote send")
                     node.Gossip.cmd.remove(k)
 

@@ -2,13 +2,11 @@ import random
 import socket
 from threading import Thread
 import time
+import os
 import json
 
 import importlib.machinery
 import importlib.util
-
-votes=[]
-cmd = []
 
 import ecdsa
 import json
@@ -16,15 +14,30 @@ from Crypto.Hash import keccak
 import base58
 
 
+votes=[]
+cmd = []
+
 class server_accounts:
-    def __init__(self):
-        self.sk = ecdsa.SigningKey.generate(curve=ecdsa.NIST521p)
+    def __init__(self,name):
+        if os.path.exists("{}--private.pem".format(name)) and os.path.exists("{}--public.pem".format(name)):
+            with open("{}--private.pem".format(name), "rb+") as f:
+                self.sk = ecdsa.SigningKey.from_pem(f.read())
+
+            with open("{}--public.pem".format(name), "a+") as f:
+                #self.vk = self.sk.verifying_key.from_pem(f.read())
+                pass
+            
+        else:
+
+            self.sk = ecdsa.SigningKey.generate(curve=ecdsa.NIST521p)
+            with open("{}--private.pem".format(name), "wb") as f:
+                f.write(self.sk.to_pem())
+            with open("{}--public.pem".format(name), "wb") as f:
+                f.write(self.sk.verifying_key.to_pem())
         self.PrivateKey =  base58.b58encode(self.sk.to_pem())
+            
         self.PublicKey = base58.b58encode(self.sk.verifying_key.to_pem())
-        with open("private.pem", "wb") as f:
-            f.write(self.sk.to_pem())
-        with open("public.pem", "wb") as f:
-            f.write(self.sk.verifying_key.to_pem())
+            
         self.vk = ecdsa.VerifyingKey.from_pem(base58.b58decode(self.PublicKey))
         pub_hash = keccak.new(digest_bits=256)
         pub_hash.update(self.PublicKey)
@@ -54,8 +67,7 @@ class GossipNode:
         self.port = port
         self.name = name
         self.node.bind((self.hostname, self.port))
-        self.identity = server_accounts()
-
+        self.identity = server_accounts(name)
 
         print("Node started on port {0}".format(self.port))
         print("Susceptible nodes =>", self.susceptible_nodes)
@@ -85,10 +97,12 @@ class GossipNode:
 
                 #message_to_forward = conn.recv(1024)
                 conn.close()
-                if self.susceptible_nodes != []:
+                if message_to_forward:
+                    print(message_to_forward.decode('utf-8'))
+                """if self.susceptible_nodes != []:
                      
                     self.susceptible_nodes.remove(address[1]-1)
-                    GossipNode.infected_nodes.append(address[1])
+                    GossipNode.infected_nodes.append(address[1])"""
                 if message_to_forward:
                     print(message_to_forward.decode('utf-8'))
                     message = json.loads(message_to_forward.decode('utf-8'))
@@ -97,6 +111,8 @@ class GossipNode:
                         print("\nMessage is: '{0}'.\nReceived at [{1}] from [{2}]\n"
                             .format(message, time.ctime(time.time()), address[1]))
                             #data =json.loads(message_to_forward.decode('utf-8'))
+                        
+                        
                         cmd.append(message['data'])
                         print("cmd:\n",cmd)
                         #self.transmit_message(vote_data.encode('utf-8'))

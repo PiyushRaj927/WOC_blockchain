@@ -3,13 +3,13 @@ import importlib.util
 from pathlib import Path
 
 #Import accounts
-accounts_loader = importlib.machinery.SourceFileLoader( 'accounts', '../accounts.py' )
+accounts_loader = importlib.machinery.SourceFileLoader( 'accounts', './accounts.py' )
 accounts_spec = importlib.util.spec_from_loader( 'accounts', accounts_loader )
 accounts = importlib.util.module_from_spec( accounts_spec )
 accounts_spec.loader.exec_module(accounts)
-
+node_no = 2
 # Import blockchain
-blockchain_loader = importlib.machinery.SourceFileLoader( 'blockchain', '../blockchain/blockchain.py' )
+blockchain_loader = importlib.machinery.SourceFileLoader( 'blockchain', './blockchain/blockchain.py' )
 blockchain_spec = importlib.util.spec_from_loader( 'blockchain', blockchain_loader )
 blockchain = importlib.util.module_from_spec(blockchain_spec)
 blockchain_spec.loader.exec_module(blockchain)
